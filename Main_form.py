@@ -27,7 +27,7 @@ class Main_form(QMainWindow):
     def edit(self, item):
         check = self.check(0)
         if check:
-            self.edit_book = Add_book(1, self, self.id_books[int(check)])
+            self.edit_book = Add_book(1, self, str(check))
             self.edit_book.show()
 
     def delete(self):
