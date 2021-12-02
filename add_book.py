@@ -20,16 +20,13 @@ class Add_book(QMainWindow):
         self.table_authors.setColumnHidden(0, True)
         self.table_authors.setHorizontalHeaderLabels(['id', 'Авторы'])
         self.table_authors.horizontalHeader().setSectionResizeMode(QtWidgets.QHeaderView.Stretch)
-
         cursor = self.connection.cursor()
         authors = cursor.execute("""SELECT * FROM authors""").fetchall()
         # имена авторов
-
         self.auth = [[i[0], i[1]] for i in authors]
         # заполнение комбобокс именами авторов
         for row in self.auth:
             self.search_author.addItem(row[1])
-
         if self.type == 0:
             self.btn_add.setText('Добавить')
             self.btn_add.clicked.connect(self.check)
@@ -43,9 +40,8 @@ class Add_book(QMainWindow):
             self.line_name.setText(name)
             self.line_year.setText(str(year))
             self.line_count.setText(str(count))
-
-
-            idab = list(cursor.execute(f'SELECT id_author FROM authors_books WHERE id_book = {self.id_book}').fetchall())
+            idab = list(
+                cursor.execute(f'SELECT id_author FROM authors_books WHERE id_book = {self.id_book}').fetchall())
             a = [idab[i] for i in range(len(idab))]
             for i in a:
                 rowPosition = self.table_authors.rowCount()
@@ -98,14 +94,12 @@ class Add_book(QMainWindow):
         res = f'INSERT INTO books(name_book, year_publication, count_books, comm_book) VALUES ("{self.line_name.text()}", "{self.line_year.text()}", "{self.line_count.text()}", "{self.text_comm.toPlainText()}")'
         cursor.execute(res)
         self.connection.commit()
-
         cursor = self.connection.cursor()
         ids = cursor.execute(f'SELECT id_book FROM books ORDER BY id_book DESC LIMIT 1').fetchone()
         ida = list(set([self.table_authors.item(i, 0).text() for i in range(self.table_authors.rowCount())]))
         for num in range(len(ida)):
             cursor.execute(f'INSERT INTO authors_books(id_book, id_author) VALUES ({ids[0]}, {ida[num]})')
             self.connection.commit()
-
         self.ex.books_view()
         self.close()
 
@@ -114,21 +108,16 @@ class Add_book(QMainWindow):
         res = f'UPDATE books SET name_book = "{self.line_name.text()}", year_publication = "{self.line_year.text()}", count_books= "{self.line_count.text()}", comm_book = "{self.text_comm.toPlainText()}" WHERE id_book = {self.id_book}'
         cursor.execute(res)
         self.connection.commit()
-
         for i in range(len(self.cr)):
             cursor = self.connection.cursor()
             tabres = f'DELETE FROM authors_books WHERE id_book = {self.id_book} AND id_author = {self.cr[i]}'
-            print(tabres)
             cursor.execute(tabres)
             self.connection.commit()
-
         cursor = self.connection.cursor()
-        ids = cursor.execute(f'SELECT id_book FROM books ORDER BY id_book DESC LIMIT 1').fetchone()
         ida = list(set([self.table_authors.item(i, 0).text() for i in range(self.table_authors.rowCount())]))
         for num in range(len(ida)):
             cursor.execute(f'INSERT INTO authors_books(id_book, id_author) VALUES ({self.id_book}, {ida[num]})')
             self.connection.commit()
-
         self.ex.books_view()
         self.close()
 

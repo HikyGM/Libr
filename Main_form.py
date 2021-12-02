@@ -27,12 +27,12 @@ class Main_form(QMainWindow):
         self.main_table.setColumnCount(0)
         cursor = self.connection.cursor()
         books = cursor.execute(
-            """SELECT id_book, name_book, id_book, id_book, year_publication, comm_book FROM books""").fetchall()
-        self.main_table.setColumnCount(6)
+            """SELECT id_book, name_book, id_book, id_book, year_publication, count_books, comm_book FROM books""").fetchall()
+        self.main_table.setColumnCount(7)
         # скрытие столбца с ID книг
         self.main_table.setColumnHidden(0, True)
         self.main_table.setHorizontalHeaderLabels(
-            ['ID', 'Название книги', 'Авторы', 'Жанр', 'Год издания', 'Комментарий'])
+            ['ID', 'Название книги', 'Авторы', 'Жанр', 'Год издания', 'Кол-во', 'Комментарий'])
         self.main_table.setRowCount(len(books))
         # запрет на редактирование содержимого таблицы
         self.main_table.setEditTriggers(QtWidgets.QAbstractItemView.NoEditTriggers)
@@ -45,11 +45,18 @@ class Main_form(QMainWindow):
         # установка адаптивно заполняющего размера ячеек
         self.main_table.horizontalHeader().setSectionResizeMode(QtWidgets.QHeaderView.Stretch)
         # установка размера ячеек по вертикали
-        self.main_table.verticalHeader().setDefaultSectionSize(70)
+        # self.main_table.verticalHeader().setDefaultSectionSize(70)
+        self.main_table.verticalHeader().setSectionResizeMode(QtWidgets.QHeaderView.Stretch)
         # установка размера ячеек по горизонтали
-        self.main_table.horizontalHeader().setDefaultSectionSize(200)
+        self.main_table.horizontalHeader().setDefaultSectionSize(150)
         # фиксированный размер 3 столбца
-        self.main_table.horizontalHeader().setSectionResizeMode(3, QtWidgets.QHeaderView.Fixed)
+        self.main_table.horizontalHeader().setSectionResizeMode(5, QtWidgets.QHeaderView.Fixed)
+
+        self.main_table.horizontalHeader().setDefaultSectionSize(100)
+        # фиксированный размер 3 столбца
+        self.main_table.horizontalHeader().setSectionResizeMode(6, QtWidgets.QHeaderView.Fixed)
+
+
         for i, elem in enumerate(books):
             for j, val in enumerate(elem):
                 if j == 2:
