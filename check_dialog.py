@@ -1,12 +1,15 @@
 import sys
+import sqlite3
 from PyQt5 import uic  # Импортируем uic
 from PyQt5.QtWidgets import QApplication, QMainWindow
 
 
 class Check(QMainWindow):
-    def __init__(self):
+    def __init__(self, id_book):
         super().__init__()
+        self.connection = sqlite3.connect("library_db2.sqlite")
         uic.loadUi('check_dialog.ui', self)  # Загружаем дизайн
+        self.id_book = id_book
         self.btn_no.clicked.connect(self.close)
 
 

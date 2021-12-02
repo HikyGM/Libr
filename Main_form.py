@@ -1,11 +1,8 @@
 import sys
 import sqlite3
-from check_dialog import Check
 from add_book import Add_book
-from edit_book import Edit_book
-from error_edit import Error_edit
 from PyQt5 import uic, QtWidgets  # Импортируем uic
-from PyQt5.QtWidgets import QApplication, QMainWindow, QTableWidgetItem
+from PyQt5.QtWidgets import QApplication, QMainWindow, QTableWidgetItem, QMessageBox
 
 
 class Main_form(QMainWindow):
@@ -23,24 +20,43 @@ class Main_form(QMainWindow):
         # self.main_table.itemChanged.connect(self.edit)
 
     def add(self):
-        self.add_book = Add_book(0)
+        self.add_book = Add_book(0, self, 0)
         self.add_book.show()
+        self.books_view()
 
     def edit(self, item):
-        # Получение номера строки
-        rows = list(set([i.row() for i in self.main_table.selectedItems()]))
-        # Получение 0-го элемента в строке (Название книги)
-        ids = [self.main_table.item(i, 0).text() for i in rows]
-        if ids:
-            self.edit_book = Add_book(1, self.id_books[rows[0]])
+        check = self.check(0)
+        if check:
+            self.edit_book = Add_book(1, self, self.id_books[int(check)])
             self.edit_book.show()
-        else:
-            self.error_edit = Error_edit()
-            self.error_edit.show()
 
     def delete(self):
-        self.check = Check()
-        self.check.show()
+        check = self.check(1)
+        print(check)
+        if check:
+            choice = QMessageBox.question(self, '', 'Вы действительно хотите удалить книгу?',
+                                          QMessageBox.Yes | QMessageBox.No)
+            if choice == QMessageBox.Yes:  # 2
+                cursor = self.connection.cursor()
+                m = f'DELETE FROM books WHERE id_book = {str(check)}'
+                print(m)
+                cursor.execute(m)
+                self.connection.commit()
+                self.books_view()
+            elif choice == QMessageBox.No:  # 4
+                pass
+
+    def check(self, type_check):
+        # Получение номера строки
+        rows = list(set([i.row() for i in self.main_table.selectedItems()]))
+        print('row', rows)
+        # Получение 0-го элемента в строке (Название книги)
+        ids = self.main_table.item(rows[0], 0).text()
+        print('ids', ids)
+        if rows:
+            return ids
+        else:
+            return False
 
     def books_view(self):
         # Удаление содержимого таблицы
@@ -51,9 +67,12 @@ class Main_form(QMainWindow):
 
         cursor = self.connection.cursor()
 
-        books = cursor.execute("""SELECT name_book, id_book, id_book, year_publication FROM books""").fetchall()
-        self.main_table.setColumnCount(4)
-        self.main_table.setHorizontalHeaderLabels(['Название книги', 'Авторы', 'Жанр', 'Год издания'])
+        books = cursor.execute(
+            """SELECT id_book, name_book, id_book, id_book, year_publication, comm_book FROM books""").fetchall()
+        self.main_table.setColumnCount(6)
+        # self.main_table.setColumnHidden(0, True)
+        self.main_table.setHorizontalHeaderLabels(
+            ['ID', 'Название книги', 'Авторы', 'Жанр', 'Год издания', 'Комментарий'])
         self.main_table.setRowCount(len(books))
 
         # запрет на редактирование содержимого таблицы
@@ -97,14 +116,14 @@ class Main_form(QMainWindow):
         for i, elem in enumerate(books):
             for j, val in enumerate(elem):
 
-                if j == 1:
+                if j == 2:
                     self.id_books.append(val)
                     authors = cursor.execute("""
                             SELECT a.name_author 
                             FROM authors_books ab, authors a
                             WHERE ab.id_author = a.id_author and ab.id_book = ?""", (val,)).fetchall()
                     self.main_table.setItem(i, j, QTableWidgetItem(", ".join([i[0] for i in authors])))
-                elif j == 2:
+                elif j == 3:
                     genre = cursor.execute("""
                             SELECT a.name_genre
                             FROM genre_books ab, genre a
