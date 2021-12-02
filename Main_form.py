@@ -19,103 +19,39 @@ class Main_form(QMainWindow):
         self.btn_del.clicked.connect(self.delete)
         # self.main_table.itemChanged.connect(self.edit)
 
-    def add(self):
-        self.add_book = Add_book(0, self, 0)
-        self.add_book.show()
-        self.books_view()
-
-    def edit(self, item):
-        check = self.check(0)
-        if check:
-            self.edit_book = Add_book(1, self, str(check))
-            self.edit_book.show()
-
-    def delete(self):
-        check = self.check(1)
-        print(check)
-        if check:
-            choice = QMessageBox.question(self, '', 'Вы действительно хотите удалить книгу?',
-                                          QMessageBox.Yes | QMessageBox.No)
-            if choice == QMessageBox.Yes:  # 2
-                cursor = self.connection.cursor()
-                m = f'DELETE FROM books WHERE id_book = {str(check)}'
-                print(m)
-                cursor.execute(m)
-                self.connection.commit()
-                self.books_view()
-            elif choice == QMessageBox.No:  # 4
-                pass
-
-    def check(self, type_check):
-        # Получение номера строки
-        rows = list(set([i.row() for i in self.main_table.selectedItems()]))
-        print('row', rows)
-        # Получение 0-го элемента в строке (Название книги)
-        ids = self.main_table.item(rows[0], 0).text()
-        print('ids', ids)
-        if rows:
-            return ids
-        else:
-            return False
-
     def books_view(self):
         # Удаление содержимого таблицы
         self.main_table.clear()
         # Удаление сетки таблицы
         self.main_table.setRowCount(0)
         self.main_table.setColumnCount(0)
-
         cursor = self.connection.cursor()
-
         books = cursor.execute(
             """SELECT id_book, name_book, id_book, id_book, year_publication, comm_book FROM books""").fetchall()
         self.main_table.setColumnCount(6)
-        # self.main_table.setColumnHidden(0, True)
+        # скрытие столбца с ID книг
+        self.main_table.setColumnHidden(0, True)
         self.main_table.setHorizontalHeaderLabels(
             ['ID', 'Название книги', 'Авторы', 'Жанр', 'Год издания', 'Комментарий'])
         self.main_table.setRowCount(len(books))
-
         # запрет на редактирование содержимого таблицы
         self.main_table.setEditTriggers(QtWidgets.QAbstractItemView.NoEditTriggers)
-
+        # выделение всей строки при нажатии на айтем
         self.main_table.setSelectionBehavior(QtWidgets.QAbstractItemView.SelectRows)
-
         row_num = self.main_table.currentRow()
         self.main_table.selectRow(row_num)
         # убираем не нужные номера строк
         self.main_table.verticalHeader().setVisible(False)
-
         # установка адаптивно заполняющего размера ячеек
         self.main_table.horizontalHeader().setSectionResizeMode(QtWidgets.QHeaderView.Stretch)
-
         # установка размера ячеек по вертикали
         self.main_table.verticalHeader().setDefaultSectionSize(70)
-
-        # self.main_table.horizontalHeader().setMinimumSectionSize(90)
-
         # установка размера ячеек по горизонтали
         self.main_table.horizontalHeader().setDefaultSectionSize(200)
-        # установка фиксированного размера определённых столбцов
-        # Interactive(или 0) - размер может быть изменен пользователем или программно;
-
-        # Stretch(или 1) - секции автоматически равномерно распределяют свободное пространство между собой.Размер не
-        # может быть изменен ни пользователем, ни программно;
-
-        # Fixed(или 2) - размер может быть изменен только программно;
-
-        # ResizeToContents(или 3) - размер определяется автоматически по содержимому секции.Размер не может быть изменен
-        # ни пользователем, ни программно;
-        # self.main_table.horizontalHeader().setSectionResizeMode(0, QtWidgets.QHeaderView.ResizeToContents)
+        # фиксированный размер 3 столбца
         self.main_table.horizontalHeader().setSectionResizeMode(3, QtWidgets.QHeaderView.Fixed)
-
-        # запрос на авторов
-        # select a.name_author
-        # from authors_books ab, authors a
-        # where ab.id_author = a.id_author and ab.id_book = 1
-
         for i, elem in enumerate(books):
             for j, val in enumerate(elem):
-
                 if j == 2:
                     self.id_books.append(val)
                     authors = cursor.execute("""
@@ -138,6 +74,43 @@ class Main_form(QMainWindow):
         # Удаление сетки таблицы
         self.main_table.setRowCount(0)
         self.main_table.setColumnCount(0)
+
+    def add(self):
+        self.add_book = Add_book(0, self, 0)
+        self.add_book.show()
+        self.books_view()
+
+    def edit(self):
+        id_book = self.check()
+        if id_book:
+            self.edit_book = Add_book(1, self, str(id_book))
+            self.edit_book.show()
+
+    def delete(self):
+        id_book = self.check()
+        print(id_book)
+        if id_book:
+            choice = QMessageBox.question(self, '', 'Вы действительно хотите удалить книгу?',
+                                          QMessageBox.Yes | QMessageBox.No)
+            if choice == QMessageBox.Yes:
+                cursor = self.connection.cursor()
+                m = f'DELETE FROM books WHERE id_book = {str(id_book)}'
+                print(m)
+                cursor.execute(m)
+                self.connection.commit()
+                self.books_view()
+            elif choice == QMessageBox.No:
+                pass
+
+    def check(self):
+        # Получение номера строки
+        rows = list(set([i.row() for i in self.main_table.selectedItems()]))
+        if rows:
+            # Получение ID книги
+            ids = self.main_table.item(rows[0], 0).text()
+            return ids
+        else:
+            return False
 
 
 def except_hook(cls, exception, traceback):
