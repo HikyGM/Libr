@@ -155,7 +155,9 @@ class Add_book(QMainWindow):
 
     def add(self):
         cursor = self.connection.cursor()
-        res = f'INSERT INTO books(name_book, year_publication, count_books, comm_book) VALUES ("{self.line_name.text()}", "{self.line_year.text()}", "{self.line_count.text()}", "{self.text_comm.toPlainText()}")'
+        res = f'INSERT INTO books(name_book, year_publication, count_books, comm_book)' + \
+              f'VALUES ("{self.line_name.text()}", "{self.line_year.text()}", ' + \
+              f'"{self.line_count.text()}", "{self.text_comm.toPlainText()}")'
         cursor.execute(res)
         self.connection.commit()
         cursor = self.connection.cursor()
@@ -164,12 +166,22 @@ class Add_book(QMainWindow):
         for num in range(len(ida)):
             cursor.execute(f'INSERT INTO authors_books(id_book, id_author) VALUES ({ids[0]}, {ida[num]})')
             self.connection.commit()
+
+        cursor = self.connection.cursor()
+        idge = list(set([self.table_genre.item(i, 0).text() for i in range(self.table_genre.rowCount())]))
+        print(idge)
+        for num in range(len(idge)):
+            cursor.execute(f'INSERT INTO genre_books(id_book, id_genre) VALUES ({ids[0]}, {idge[num]})')
+            self.connection.commit()
         self.ex.books_view()
         self.close()
 
     def edit(self):
         cursor = self.connection.cursor()
-        res = f'UPDATE books SET name_book = "{self.line_name.text()}", year_publication = "{self.line_year.text()}", count_books= "{self.line_count.text()}", comm_book = "{self.text_comm.toPlainText()}" WHERE id_book = {self.id_book}'
+        res = f'UPDATE books ' + \
+              f'SET name_book = "{self.line_name.text()}", year_publication = "{self.line_year.text()}", ' + \
+              f'count_books= "{self.line_count.text()}", comm_book = "{self.text_comm.toPlainText()}" ' + \
+              f'WHERE id_book = {self.id_book}'
         cursor.execute(res)
         self.connection.commit()
 
