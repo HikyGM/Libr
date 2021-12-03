@@ -14,6 +14,7 @@ class Main_form(QMainWindow):
         self.books_view()
         self.btn_books.clicked.connect(self.books_view)
         self.btn_journal.clicked.connect(self.journal)
+        self.btn_author.clicked.connect(self.author_view)
         self.btn_add.clicked.connect(self.add)
         self.btn_edit.clicked.connect(self.edit)
         self.btn_del.clicked.connect(self.delete)
@@ -32,7 +33,7 @@ class Main_form(QMainWindow):
         # скрытие столбца с ID книг
         self.main_table.setColumnHidden(0, True)
         self.main_table.setHorizontalHeaderLabels(
-            ['ID', 'Название книги', 'Авторы', 'Жанр', 'Год издания', 'Кол-во', 'Комментарий'])
+            ['ID', 'Название книги', 'Авторы', 'Жанр', 'Год', 'Кол-во', 'Комментарий'])
         self.main_table.setRowCount(len(books))
         # запрет на редактирование содержимого таблицы
         self.main_table.setEditTriggers(QtWidgets.QAbstractItemView.NoEditTriggers)
@@ -45,8 +46,8 @@ class Main_form(QMainWindow):
         # установка адаптивно заполняющего размера ячеек
         self.main_table.horizontalHeader().setSectionResizeMode(QtWidgets.QHeaderView.Stretch)
         # установка размера ячеек по вертикали
-        # self.main_table.verticalHeader().setDefaultSectionSize(70)
-        self.main_table.verticalHeader().setSectionResizeMode(QtWidgets.QHeaderView.Stretch)
+        self.main_table.verticalHeader().setDefaultSectionSize(70)
+        # self.main_table.verticalHeader().setSectionResizeMode(QtWidgets.QHeaderView.Stretch)
         # установка размера ячеек по горизонтали
         self.main_table.horizontalHeader().setDefaultSectionSize(150)
         # фиксированный размер 3 столбца
@@ -54,8 +55,8 @@ class Main_form(QMainWindow):
 
         self.main_table.horizontalHeader().setDefaultSectionSize(100)
         # фиксированный размер 3 столбца
-        self.main_table.horizontalHeader().setSectionResizeMode(6, QtWidgets.QHeaderView.Fixed)
-
+        self.main_table.horizontalHeader().setSectionResizeMode(4, QtWidgets.QHeaderView.Fixed)
+        self.main_table.horizontalHeader().setSectionResizeMode(5, QtWidgets.QHeaderView.Fixed)
 
         for i, elem in enumerate(books):
             for j, val in enumerate(elem):
@@ -82,6 +83,14 @@ class Main_form(QMainWindow):
         self.main_table.setRowCount(0)
         self.main_table.setColumnCount(0)
 
+    def author_view(self):
+        # Удаление содержимого таблицы
+        self.main_table.clear()
+        # Удаление сетки таблицы
+        self.main_table.setRowCount(0)
+        self.main_table.setColumnCount(0)
+        self.books_view()
+
     def add(self):
         self.add_book = Add_book(0, self, 0)
         self.add_book.show()
@@ -95,14 +104,12 @@ class Main_form(QMainWindow):
 
     def delete(self):
         id_book = self.check()
-        print(id_book)
         if id_book:
             choice = QMessageBox.question(self, '', 'Вы действительно хотите удалить книгу?',
                                           QMessageBox.Yes | QMessageBox.No)
             if choice == QMessageBox.Yes:
                 cursor = self.connection.cursor()
                 m = f'DELETE FROM books WHERE id_book = {str(id_book)}'
-                print(m)
                 cursor.execute(m)
                 self.connection.commit()
                 self.books_view()

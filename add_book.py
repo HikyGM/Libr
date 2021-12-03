@@ -32,13 +32,7 @@ class Add_book(QMainWindow):
         self.table_genre.setHorizontalHeaderLabels(['id', 'Жанры'])
         self.table_genre.horizontalHeader().setSectionResizeMode(QtWidgets.QHeaderView.Stretch)
 
-        cursor = self.connection.cursor()
-        authors = cursor.execute("""SELECT * FROM authors""").fetchall()
-        # имена авторов
-        self.auth = [[i[0], i[1]] for i in authors]
-        # заполнение комбобокс именами авторов
-        for row in self.auth:
-            self.search_author.addItem(row[1])
+        self.tab_add()
 
         cursor = self.connection.cursor()
         genre = cursor.execute("""SELECT * FROM genre""").fetchall()
@@ -78,7 +72,6 @@ class Add_book(QMainWindow):
             idg = list(
                 cursor.execute(f'SELECT id_genre FROM genre_books WHERE id_book = {self.id_book}').fetchall())
             b = [idg[i] for i in range(len(idg))]
-            print('b', b)
             for i in b:
                 rowPosition = self.table_genre.rowCount()
                 self.table_genre.insertRow(rowPosition)
@@ -97,15 +90,23 @@ class Add_book(QMainWindow):
             self.btn_add.clicked.connect(self.check)
 
     def new_auth(self):
-        self.add_auth = New_auth()
+        self.add_auth = New_auth(self)
         self.add_auth.show()
-        print(self.add_auth)
+
+    def tab_add(self):
+        self.search_author.clear()
+        cursor = self.connection.cursor()
+        authors = cursor.execute("""SELECT * FROM authors""").fetchall()
+        # имена авторов
+        self.auth = [[i[0], i[1]] for i in authors]
+        # заполнение комбобокс именами авторов
+        for row in self.auth:
+            self.search_author.addItem(row[1])
 
     def add_tab_gen(self):
         rowPosition = self.table_genre.rowCount()
         self.table_genre.insertRow(rowPosition)
         index = self.search_genre.currentIndex()
-        print('in', index)
         self.table_genre.setItem(self.count_genre, 0, QTableWidgetItem(str(self.genre[index][0])))
         self.table_genre.setItem(self.count_genre, 1, QTableWidgetItem(self.genre[index][1]))
         self.count_genre += 1
@@ -140,6 +141,8 @@ class Add_book(QMainWindow):
             self.lab_info.setText('Заполните название книги')
         elif not self.table_authors.rowCount():
             self.lab_info.setText('Добавьте автора книги')
+        elif not self.table_genre.rowCount():
+            self.lab_info.setText('Добавьте жанр книги')
         elif not self.line_year.text():
             self.lab_info.setText('Заполните год издания')
         elif not self.line_count.text():
