@@ -1,5 +1,6 @@
 import sys
 import sqlite3
+from new_auth import New_auth
 from PyQt5 import uic, QtWidgets  # Импортируем uic
 from PyQt5.QtWidgets import QApplication, QMainWindow, QTableWidgetItem
 
@@ -11,15 +12,26 @@ class Add_book(QMainWindow):
         self.id_book = id_book
         self.ex = ex
         self.count_author = 0
+        self.count_genre = 0
         self.connection = sqlite3.connect("library_db2.sqlite")
         uic.loadUi('add_book.ui', self)  # Загружаем дизайн
         self.btn_cancel.clicked.connect(self.close)
         self.btn_add_tab_auth.clicked.connect(self.add_tab_auth)
         self.btn_del_auth_tab.clicked.connect(self.del_tab_auth)
+        self.btn_add_tab_genre.clicked.connect(self.add_tab_gen)
+        self.btn_del_genre_tab.clicked.connect(self.del_tab_gen)
+        self.btn_add_new_auth.clicked.connect(self.new_auth)
+
         self.table_authors.setColumnCount(2)
         self.table_authors.setColumnHidden(0, True)
         self.table_authors.setHorizontalHeaderLabels(['id', 'Авторы'])
         self.table_authors.horizontalHeader().setSectionResizeMode(QtWidgets.QHeaderView.Stretch)
+
+        self.table_genre.setColumnCount(2)
+        self.table_genre.setColumnHidden(0, True)
+        self.table_genre.setHorizontalHeaderLabels(['id', 'Жанры'])
+        self.table_genre.horizontalHeader().setSectionResizeMode(QtWidgets.QHeaderView.Stretch)
+
         cursor = self.connection.cursor()
         authors = cursor.execute("""SELECT * FROM authors""").fetchall()
         # имена авторов
@@ -27,6 +39,15 @@ class Add_book(QMainWindow):
         # заполнение комбобокс именами авторов
         for row in self.auth:
             self.search_author.addItem(row[1])
+
+        cursor = self.connection.cursor()
+        genre = cursor.execute("""SELECT * FROM genre""").fetchall()
+        # название жанров
+        self.genre = [[i[0], i[1]] for i in genre]
+        # заполнение комбобокс жанрами
+        for row in self.genre:
+            self.search_genre.addItem(row[1])
+
         if self.type == 0:
             self.btn_add.setText('Добавить')
             self.btn_add.clicked.connect(self.check)
@@ -52,10 +73,50 @@ class Add_book(QMainWindow):
                     self.table_authors.setItem(self.count_author, 0, QTableWidgetItem(str(i[0])))
                     self.table_authors.setItem(self.count_author, 1, QTableWidgetItem(j))
                     self.count_author += 1
+
+            cursor = self.connection.cursor()
+            idg = list(
+                cursor.execute(f'SELECT id_genre FROM genre_books WHERE id_book = {self.id_book}').fetchall())
+            b = [idg[i] for i in range(len(idg))]
+            print('b', b)
+            for i in b:
+                rowPosition = self.table_genre.rowCount()
+                self.table_genre.insertRow(rowPosition)
+                cursor = self.connection.cursor()
+                gb = cursor.execute(f'SELECT name_genre FROM genre WHERE id_genre = {i[0]}').fetchone()
+                for j in gb:
+                    self.table_genre.setItem(self.count_genre, 0, QTableWidgetItem(str(i[0])))
+                    self.table_genre.setItem(self.count_genre, 1, QTableWidgetItem(j))
+                    self.count_genre += 1
+
             self.cr = [self.table_authors.item(i, 0).text() for i in range(self.table_authors.rowCount())]
+            self.gr = [self.table_genre.item(i, 0).text() for i in range(self.table_genre.rowCount())]
+
             self.text_comm.setPlainText(comm)
             self.btn_add.setText('Изменить')
             self.btn_add.clicked.connect(self.check)
+
+    def new_auth(self):
+        self.add_auth = New_auth()
+        self.add_auth.show()
+        print(self.add_auth)
+
+    def add_tab_gen(self):
+        rowPosition = self.table_genre.rowCount()
+        self.table_genre.insertRow(rowPosition)
+        index = self.search_genre.currentIndex()
+        print('in', index)
+        self.table_genre.setItem(self.count_genre, 0, QTableWidgetItem(str(self.genre[index][0])))
+        self.table_genre.setItem(self.count_genre, 1, QTableWidgetItem(self.genre[index][1]))
+        self.count_genre += 1
+
+    def del_tab_gen(self):
+        index_rows = list([i.row() for i in self.table_genre.selectedItems()])
+        if index_rows:
+            index_rows.reverse()
+            for elem in index_rows:
+                self.table_genre.removeRow(elem)
+                self.count_genre -= 1
 
     def add_tab_auth(self):
         rowPosition = self.table_authors.rowCount()
@@ -108,6 +169,8 @@ class Add_book(QMainWindow):
         res = f'UPDATE books SET name_book = "{self.line_name.text()}", year_publication = "{self.line_year.text()}", count_books= "{self.line_count.text()}", comm_book = "{self.text_comm.toPlainText()}" WHERE id_book = {self.id_book}'
         cursor.execute(res)
         self.connection.commit()
+
+        # обновление авторов
         for i in range(len(self.cr)):
             cursor = self.connection.cursor()
             tabres = f'DELETE FROM authors_books WHERE id_book = {self.id_book} AND id_author = {self.cr[i]}'
@@ -118,6 +181,19 @@ class Add_book(QMainWindow):
         for num in range(len(ida)):
             cursor.execute(f'INSERT INTO authors_books(id_book, id_author) VALUES ({self.id_book}, {ida[num]})')
             self.connection.commit()
+
+        # обновление жанров
+        for i in range(len(self.gr)):
+            cursor = self.connection.cursor()
+            tabgen = f'DELETE FROM genre_books WHERE id_book = {self.id_book} AND id_genre = {self.gr[i]}'
+            cursor.execute(tabgen)
+            self.connection.commit()
+        cursor = self.connection.cursor()
+        idge = list(set([self.table_genre.item(i, 0).text() for i in range(self.table_genre.rowCount())]))
+        for num in range(len(idge)):
+            cursor.execute(f'INSERT INTO genre_books(id_book, id_genre) VALUES ({self.id_book}, {idge[num]})')
+            self.connection.commit()
+
         self.ex.books_view()
         self.close()
 
