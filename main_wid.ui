@@ -121,6 +121,35 @@ border-radius: 5;</string>
            </widget>
           </item>
           <item>
+           <widget class="QPushButton" name="btn_clients">
+            <property name="minimumSize">
+             <size>
+              <width>150</width>
+              <height>50</height>
+             </size>
+            </property>
+            <property name="font">
+             <font>
+              <family>Myriad Pro</family>
+              <pointsize>18</pointsize>
+              <weight>75</weight>
+              <bold>true</bold>
+             </font>
+            </property>
+            <property name="cursor">
+             <cursorShape>PointingHandCursor</cursorShape>
+            </property>
+            <property name="styleSheet">
+             <string notr="true">background-color: rgb(158, 205, 255);
+border: 1px solid rgb(141, 184, 227);
+border-radius: 5;</string>
+            </property>
+            <property name="text">
+             <string>Клиенты</string>
+            </property>
+           </widget>
+          </item>
+          <item>
            <widget class="QPushButton" name="btn_author">
             <property name="minimumSize">
              <size>
@@ -313,7 +342,7 @@ border-radius: 5;</string>
      <x>0</x>
      <y>0</y>
      <width>1000</width>
-     <height>26</height>
+     <height>21</height>
     </rect>
    </property>
   </widget>

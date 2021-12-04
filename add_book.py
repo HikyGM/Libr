@@ -90,7 +90,7 @@ class Add_book(QMainWindow):
             self.btn_add.clicked.connect(self.check)
 
     def new_auth(self):
-        self.add_auth = New_auth(self)
+        self.add_auth = New_auth(self, '', 0)
         self.add_auth.show()
 
     def tab_add(self):
@@ -141,12 +141,16 @@ class Add_book(QMainWindow):
             self.lab_info.setText('Заполните название книги')
         elif not self.table_authors.rowCount():
             self.lab_info.setText('Добавьте автора книги')
-        elif not self.table_genre.rowCount():
-            self.lab_info.setText('Добавьте жанр книги')
         elif not self.line_year.text():
             self.lab_info.setText('Заполните год издания')
         elif not self.line_count.text():
             self.lab_info.setText('Заполните количество')
+        elif not self.line_year.text().isnumeric():
+            self.lab_info.setText('Введите корректный год')
+        elif not self.line_count.text().isnumeric():
+            self.lab_info.setText('Введите корректное кол-во книг')
+        elif not self.table_genre.rowCount():
+            self.lab_info.setText('Добавьте жанр книги')
         else:
             if self.type == 0:
                 self.add()

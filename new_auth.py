@@ -39,9 +39,10 @@ class New_auth(QMainWindow):
                 print(res)
                 cursor.execute(res)
                 self.connection.commit()
+                self.ab.author_view()
             else:
                 pass
-        self.ab.author_view()
+
         self.close()
 
     # def check(self):
