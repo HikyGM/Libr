@@ -3,6 +3,7 @@ import sqlite3
 from add_book import Add_book
 from new_auth import New_auth
 from client_add import Clients
+from give_book import Give_book
 from PyQt5 import uic, QtWidgets  # Импортируем uic
 from PyQt5.QtWidgets import QApplication, QMainWindow, QTableWidgetItem, QMessageBox
 
@@ -90,11 +91,12 @@ class Main_form(QMainWindow):
         self.tab_clear()
         cursor = self.connection.cursor()
         journal = cursor.execute(
-            """SELECT id_clients_books, id_client, id_book, date, count_book FROM clients_books""").fetchall()
-        self.main_table.setColumnCount(5)
-        # self.main_table.setColumnHidden(0, True)
+            """SELECT id_clients_books, id_client, id_book, date, count_book, id_book FROM clients_books""").fetchall()
+        self.main_table.setColumnCount(6)
+        self.main_table.setColumnHidden(0, True)
+        self.main_table.setColumnHidden(5, True)
         self.main_table.setHorizontalHeaderLabels(
-            ['ID', 'Клиент', 'Книга', 'Дата выдачи', 'Кол-во'])
+            ['ID', 'Клиент', 'Книга', 'Дата выдачи', 'Кол-во', 'ID_book'])
         self.main_table.setRowCount(len(journal))
         self.main_table.setEditTriggers(QtWidgets.QAbstractItemView.NoEditTriggers)
         self.main_table.setSelectionBehavior(QtWidgets.QAbstractItemView.SelectRows)
@@ -171,7 +173,8 @@ class Main_form(QMainWindow):
             self.add_book.show()
             self.books_view()
         elif self.type_table == 1:
-            print('Журнал')
+            self.add_give = Give_book(0, self)
+            self.add_give.show()
         elif self.type_table == 2:
             self.add_auth = New_auth(self, 0, 0, 1)
             self.add_auth.show()
@@ -186,7 +189,10 @@ class Main_form(QMainWindow):
                 self.edit_book = Add_book(1, self, str(id_book))
                 self.edit_book.show()
         elif self.type_table == 1:
-            print('Журнал')
+            id_journal = self.check()
+            if id_journal:
+                self.add_give = Give_book(1, self, id_journal)
+                self.add_give.show()
         elif self.type_table == 2:
             id_auth = self.check()
             if id_auth:
@@ -200,7 +206,7 @@ class Main_form(QMainWindow):
 
     def delete(self):
         if self.type_table == 0:
-            index_rows = list([i.row() for i in self.main_table.selectedItems()])
+            index_rows = list(set(i.row() for i in self.main_table.selectedItems()))
             if index_rows:
                 choice = QMessageBox.question(self, '', 'Вы действительно хотите удалить книгу?',
                                               QMessageBox.Yes | QMessageBox.No)
@@ -215,7 +221,29 @@ class Main_form(QMainWindow):
                 elif choice == QMessageBox.No:
                     pass
         elif self.type_table == 1:
-            print('Журнал')
+            index_rows = list(set(i.row() for i in self.main_table.selectedItems()))
+            if index_rows:
+                choice = QMessageBox.question(self, '', 'Вы действительно хотите удалить запись??',
+                                              QMessageBox.Yes | QMessageBox.No)
+                if choice == QMessageBox.Yes:
+                    for elem in index_rows:
+                        idk = self.main_table.item(elem, 4).text()
+                        idb = self.main_table.item(elem, 5).text()
+                        cursor = self.connection.cursor()
+                        give = f'UPDATE books ' + \
+                               f'SET count_books = count_books + {int(idk)} ' + \
+                               f'WHERE id_book = {idb}'
+                        cursor.execute(give)
+                        self.connection.commit()
+
+                        ids = self.main_table.item(elem, 0).text()
+                        cursor = self.connection.cursor()
+                        m = f'DELETE FROM clients_books WHERE id_clients_books = {str(ids)}'
+                        cursor.execute(m)
+                        self.connection.commit()
+                    self.journal()
+                elif choice == QMessageBox.No:
+                    pass
         elif self.type_table == 2:
             index_rows = list([i.row() for i in self.main_table.selectedItems()])
             if index_rows:
@@ -259,7 +287,7 @@ class Main_form(QMainWindow):
         # Получение номера строки
         rows = list(set([i.row() for i in self.main_table.selectedItems()]))
         if rows:
-            # Получение ID книги
+            # Получение ID в строке (0-ой столбец)
             ids = self.main_table.item(rows[0], 0).text()
             return ids
         else:

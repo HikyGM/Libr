@@ -123,7 +123,6 @@ class Add_book(QMainWindow):
         rowPosition = self.table_authors.rowCount()
         self.table_authors.insertRow(rowPosition)
         index = self.search_author.currentIndex()
-        print('in', index)
         self.table_authors.setItem(self.count_author, 0, QTableWidgetItem(str(self.auth[index][0])))
         self.table_authors.setItem(self.count_author, 1, QTableWidgetItem(self.auth[index][1]))
         self.count_author += 1
@@ -147,7 +146,7 @@ class Add_book(QMainWindow):
             self.lab_info.setText('Заполните количество')
         elif not self.line_year.text().isnumeric():
             self.lab_info.setText('Введите корректный год')
-        elif not self.line_count.text().isnumeric():
+        elif not self.line_count.text().isnumeric() or int(self.line_count.text()) < 1:
             self.lab_info.setText('Введите корректное кол-во книг')
         elif not self.table_genre.rowCount():
             self.lab_info.setText('Добавьте жанр книги')

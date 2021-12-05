@@ -7,14 +7,14 @@
     <x>0</x>
     <y>0</y>
     <width>353</width>
-    <height>356</height>
+    <height>375</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>Выдать книгу</string>
   </property>
   <widget class="QWidget" name="centralwidget">
-   <widget class="QComboBox" name="comboBox">
+   <widget class="QComboBox" name="search_clients">
     <property name="geometry">
      <rect>
       <x>10</x>
@@ -71,7 +71,7 @@
      <set>Qt::AlignCenter</set>
     </property>
    </widget>
-   <widget class="QComboBox" name="comboBox_2">
+   <widget class="QComboBox" name="search_books">
     <property name="geometry">
      <rect>
       <x>10</x>
@@ -86,7 +86,7 @@
      </font>
     </property>
    </widget>
-   <widget class="QLineEdit" name="lineEdit">
+   <widget class="QLineEdit" name="count_line">
     <property name="geometry">
      <rect>
       <x>230</x>
@@ -96,7 +96,7 @@
      </rect>
     </property>
    </widget>
-   <widget class="QLabel" name="label_3">
+   <widget class="QLabel" name="label_count">
     <property name="geometry">
      <rect>
       <x>230</x>
@@ -138,7 +138,7 @@
      <set>Qt::AlignCenter</set>
     </property>
    </widget>
-   <widget class="QDateEdit" name="dateEdit">
+   <widget class="QDateEdit" name="date_give">
     <property name="geometry">
      <rect>
       <x>10</x>
@@ -155,8 +155,18 @@
     <property name="alignment">
      <set>Qt::AlignCenter</set>
     </property>
+    <property name="dateTime">
+     <datetime>
+      <hour>0</hour>
+      <minute>0</minute>
+      <second>0</second>
+      <year>2021</year>
+      <month>12</month>
+      <day>1</day>
+     </datetime>
+    </property>
    </widget>
-   <widget class="QPushButton" name="pushButton">
+   <widget class="QPushButton" name="btn_cancel">
     <property name="geometry">
      <rect>
       <x>190</x>
@@ -174,7 +184,7 @@
      <string>Отмена</string>
     </property>
    </widget>
-   <widget class="QPushButton" name="pushButton_2">
+   <widget class="QPushButton" name="btn_add">
     <property name="geometry">
      <rect>
       <x>40</x>
@@ -192,7 +202,7 @@
      <string>Выдать</string>
     </property>
    </widget>
-   <widget class="QLabel" name="label_5">
+   <widget class="QLabel" name="label_info">
     <property name="geometry">
      <rect>
       <x>10</x>
