@@ -11,9 +11,8 @@ class New_auth(QMainWindow):
         self.e_type = e_type
         self.type = type
         self.id_auth = id_auth
-        print(self.type)
-        uic.loadUi('new_auth.ui', self)
-        self.connection = sqlite3.connect("library_db2.sqlite")
+        uic.loadUi('forms/new_auth.ui', self)
+        self.connection = sqlite3.connect("db/library_db.sqlite")
         self.btn_ok_auth.clicked.connect(self.add_auth)
         self.btn_canc.clicked.connect(self.close)
 
@@ -36,7 +35,6 @@ class New_auth(QMainWindow):
             if self.id_auth:
                 cursor = self.connection.cursor()
                 res = f'UPDATE authors SET name_author = "{self.name_auth.text()}" WHERE id_author = {self.id_auth}'
-                print(res)
                 cursor.execute(res)
                 self.connection.commit()
                 self.ab.author_view()

@@ -8,8 +8,8 @@ from PyQt5.QtWidgets import QApplication, QMainWindow
 class Login(QMainWindow):
     def __init__(self):
         super().__init__()
-        self.connection = sqlite3.connect("library_db.sqlite")
-        uic.loadUi('login_form.ui', self)  # Загружаем дизайн
+        self.connection = sqlite3.connect("db/library_db.sqlite")
+        uic.loadUi('forms/login_form.ui', self)  # Загружаем дизайн
         self.btn_chek_auth.clicked.connect(self.chek_user)
 
     def chek_user(self):

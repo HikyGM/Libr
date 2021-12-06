@@ -8,8 +8,8 @@ from PyQt5.QtWidgets import QApplication, QMainWindow, QTableWidgetItem
 class Give_book(QMainWindow):
     def __init__(self, type, ex, id_journal=0):
         super().__init__()
-        uic.loadUi('give_book.ui', self)
-        self.connection = sqlite3.connect("library_db2.sqlite")
+        uic.loadUi('forms/give_book.ui', self)
+        self.connection = sqlite3.connect("db/library_db.sqlite")
         self.ex = ex
         self.type = type
         self.id_journal = id_journal
@@ -54,6 +54,12 @@ class Give_book(QMainWindow):
             d = date.split('-')
             self.date_give.setDate(datetime.date(int(d[0]), int(d[1]), int(d[2])))
             self.count_line.setText(str(count_book))
+            cursor = self.connection.cursor()
+            give = f'UPDATE books ' + \
+                   f'SET count_books = count_books + {int(count_book)} ' + \
+                   f'WHERE id_book = {id_book}'
+            cursor.execute(give)
+            self.connection.commit()
 
     def add_give(self):
 
@@ -84,6 +90,7 @@ class Give_book(QMainWindow):
                 elif self.type == 1:
 
 
+
                     cursor = self.connection.cursor()
                     give = f'UPDATE clients_books ' + \
                            f'SET id_book = "{self.book[index_book][0]}", id_client = "{self.client[index_client][0]}", ' + \
@@ -91,6 +98,14 @@ class Give_book(QMainWindow):
                            f'WHERE id_clients_books = {self.id_journal}'
                     cursor.execute(give)
                     self.connection.commit()
+
+                    cursor = self.connection.cursor()
+                    give = f'UPDATE books ' + \
+                           f'SET count_books = "{int(res) - int(self.count_line.text())}" ' + \
+                           f'WHERE id_book = {self.book[index_book][0]}'
+                    cursor.execute(give)
+                    self.connection.commit()
+
                 self.ex.journal()
                 self.close()
             else:

@@ -6,7 +6,7 @@ from PyQt5.QtWidgets import QApplication, QMainWindow
 class Error_edit(QMainWindow):
     def __init__(self):
         super().__init__()
-        uic.loadUi('error_edit.ui', self)  # Загружаем дизайн
+        uic.loadUi('forms/error_edit.ui', self)  # Загружаем дизайн
         self.btn_error.clicked.connect(self.close)
 
 

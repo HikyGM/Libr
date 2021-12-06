@@ -13,8 +13,8 @@ class Add_book(QMainWindow):
         self.ex = ex
         self.count_author = 0
         self.count_genre = 0
-        self.connection = sqlite3.connect("library_db2.sqlite")
-        uic.loadUi('add_book.ui', self)  # Загружаем дизайн
+        self.connection = sqlite3.connect("db/library_db.sqlite")
+        uic.loadUi('forms/add_book.ui', self)  # Загружаем дизайн
         self.btn_cancel.clicked.connect(self.close)
         self.btn_add_tab_auth.clicked.connect(self.add_tab_auth)
         self.btn_del_auth_tab.clicked.connect(self.del_tab_auth)
@@ -172,7 +172,6 @@ class Add_book(QMainWindow):
 
         cursor = self.connection.cursor()
         idge = list(set([self.table_genre.item(i, 0).text() for i in range(self.table_genre.rowCount())]))
-        print(idge)
         for num in range(len(idge)):
             cursor.execute(f'INSERT INTO genre_books(id_book, id_genre) VALUES ({ids[0]}, {idge[num]})')
             self.connection.commit()

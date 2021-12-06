@@ -11,9 +11,8 @@ class Clients(QMainWindow):
         self.e_type = e_type
         self.type = type
         self.id_client = id_client
-        print(self.type)
-        uic.loadUi('client_add.ui', self)
-        self.connection = sqlite3.connect("library_db2.sqlite")
+        uic.loadUi('forms/client_add.ui', self)
+        self.connection = sqlite3.connect("db/library_db.sqlite")
         self.btn_ok.clicked.connect(self.add_client)
         self.btn_cancel.clicked.connect(self.close)
 

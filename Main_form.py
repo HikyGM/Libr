@@ -11,8 +11,8 @@ from PyQt5.QtWidgets import QApplication, QMainWindow, QTableWidgetItem, QMessag
 class Main_form(QMainWindow):
     def __init__(self):
         super().__init__()
-        self.connection = sqlite3.connect("library_db2.sqlite")
-        uic.loadUi('main_wid.ui', self)  # Загружаем дизайн
+        self.connection = sqlite3.connect("db/library_db.sqlite")
+        uic.loadUi('forms/main_wid.ui', self)  # Загружаем дизайн
         self.id_books = []
         self.type_table = 0
         self.books_view()
@@ -24,14 +24,28 @@ class Main_form(QMainWindow):
         self.btn_edit.clicked.connect(self.edit)
         self.btn_del.clicked.connect(self.delete)
         # self.main_table.itemChanged.connect(self.edit)
+        self.btn_search.clicked.connect(self.search)
 
-    def books_view(self):
+    def search(self):
+        if self.type_table == 0:
+            self.books_view(self.input_search.text())
+        elif self.type_table == 1:
+            self.journal(self.input_search.text())
+        elif self.type_table == 2:
+            self.author_view(self.input_search.text())
+        elif self.type_table == 3:
+            self.client_view(self.input_search.text())
+
+    def books_view(self, search=''):
         self.type_table = 0
         self.tab_clear()
+        if not search:
+            search = ''
         cursor = self.connection.cursor()
-        books = cursor.execute(
-            """SELECT id_book, name_book, id_book, id_book, year_publication, count_books, comm_book 
-            FROM books""").fetchall()
+        books = cursor.execute(f"SELECT id_book, name_book, id_book, id_book, year_publication, count_books, comm_book "
+                               f"FROM books "
+                               f"WHERE name_book "
+                               f"LIKE '%{search}%'").fetchall()
         self.main_table.setColumnCount(7)
         # скрытие столбца с ID книг
         self.main_table.setColumnHidden(0, True)
@@ -86,12 +100,17 @@ class Main_form(QMainWindow):
         self.main_table.setRowCount(0)
         self.main_table.setColumnCount(0)
 
-    def journal(self):
+    def journal(self, search=''):
         self.type_table = 1
         self.tab_clear()
+        if not search:
+            search = ''
         cursor = self.connection.cursor()
-        journal = cursor.execute(
-            """SELECT id_clients_books, id_client, id_book, date, count_book, id_book FROM clients_books""").fetchall()
+        ar = f"SELECT cb.id_clients_books, cb.id_client, cb.id_book, cb.date, cb.count_book, cb.id_book " + \
+             f"FROM clients_books cb, clients c " + \
+             f"WHERE cb.id_client = c.id_client AND c.name_client " + \
+             f"LIKE '%{search}%'"
+        journal = cursor.execute(ar).fetchall()
         self.main_table.setColumnCount(6)
         self.main_table.setColumnHidden(0, True)
         self.main_table.setColumnHidden(5, True)
@@ -123,12 +142,16 @@ class Main_form(QMainWindow):
                 else:
                     self.main_table.setItem(i, j, QTableWidgetItem(str(val)))
 
-    def author_view(self):
+    def author_view(self, search=''):
         self.type_table = 2
         self.tab_clear()
+        if not search:
+            search = ''
         cursor = self.connection.cursor()
-        auth = cursor.execute(
-            """SELECT id_author, name_author FROM authors""").fetchall()
+        auth = cursor.execute(f"SELECT id_author, name_author "
+                              f"FROM authors "
+                              f"WHERE name_author "
+                              f"LIKE '%{search}%'").fetchall()
         self.main_table.setColumnCount(2)
         self.main_table.setColumnHidden(0, True)
         self.main_table.setHorizontalHeaderLabels(
@@ -145,12 +168,17 @@ class Main_form(QMainWindow):
             for j, val in enumerate(elem):
                 self.main_table.setItem(i, j, QTableWidgetItem(str(val)))
 
-    def client_view(self):
+    def client_view(self, search=''):
         self.type_table = 3
         self.tab_clear()
+        if not search:
+            search = ''
         cursor = self.connection.cursor()
-        auth = cursor.execute(
-            """SELECT id_client, name_client FROM clients""").fetchall()
+        auth = cursor.execute(f"SELECT id_client, name_client "
+                              f"FROM clients "
+                              f"WHERE name_client "
+                              f"LIKE '%{search}%'"
+                              ).fetchall()
         self.main_table.setColumnCount(2)
         self.main_table.setColumnHidden(0, True)
         self.main_table.setHorizontalHeaderLabels(
