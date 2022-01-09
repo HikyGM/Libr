@@ -63,12 +63,12 @@ class Main_form(QMainWindow):
         # установка адаптивно заполняющего размера ячеек
         self.main_table.horizontalHeader().setSectionResizeMode(QtWidgets.QHeaderView.Stretch)
         # установка размера ячеек по вертикали
-        self.main_table.verticalHeader().setDefaultSectionSize(70)
+        self.main_table.verticalHeader().setDefaultSectionSize(100)
         # self.main_table.verticalHeader().setSectionResizeMode(QtWidgets.QHeaderView.Stretch)
         # установка размера ячеек по горизонтали
-        self.main_table.horizontalHeader().setDefaultSectionSize(150)
+        # self.main_table.horizontalHeader().setDefaultSectionSize(150)
         # фиксированный размер 3 столбца
-        self.main_table.horizontalHeader().setSectionResizeMode(5, QtWidgets.QHeaderView.Fixed)
+        # self.main_table.horizontalHeader().setSectionResizeMode(5, QtWidgets.QHeaderView.Fixed)
 
         self.main_table.horizontalHeader().setDefaultSectionSize(100)
         # фиксированный размер 3 столбца
@@ -245,13 +245,18 @@ class Main_form(QMainWindow):
                         m = f'DELETE FROM books WHERE id_book = {str(ids)}'
                         cursor.execute(m)
                         self.connection.commit()
+                        self.connection.commit()
+                        cursor = self.connection.cursor()
+                        n = f'DELETE FROM clients_books WHERE id_book = {str(ids)}'
+                        cursor.execute(n)
+                        self.connection.commit()
                         self.books_view()
                 elif choice == QMessageBox.No:
                     pass
         elif self.type_table == 1:
             index_rows = list(set(i.row() for i in self.main_table.selectedItems()))
             if index_rows:
-                choice = QMessageBox.question(self, '', 'Вы действительно хотите удалить запись??',
+                choice = QMessageBox.question(self, '', 'Вы действительно хотите удалить запись?',
                                               QMessageBox.Yes | QMessageBox.No)
                 if choice == QMessageBox.Yes:
                     for elem in index_rows:
