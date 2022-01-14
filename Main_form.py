@@ -1,11 +1,12 @@
 import sys
 import sqlite3
+import csv
 from add_book import Add_book
 from new_auth import New_auth
 from client_add import Clients
 from give_book import Give_book
 from PyQt5 import uic, QtWidgets  # Импортируем uic
-from PyQt5.QtWidgets import QApplication, QMainWindow, QTableWidgetItem, QMessageBox
+from PyQt5.QtWidgets import QApplication, QMainWindow, QTableWidgetItem, QMessageBox, QFileDialog
 
 
 class Main_form(QMainWindow):
@@ -25,6 +26,22 @@ class Main_form(QMainWindow):
         self.btn_del.clicked.connect(self.delete)
         # self.main_table.itemChanged.connect(self.edit)
         self.btn_search.clicked.connect(self.search)
+        self.export_base.clicked.connect(self.export)
+
+    def export(self):
+        cursor = self.connection.cursor()
+        name_dir = QFileDialog.getExistingDirectory()
+        name_tables = ['authors', 'authors_books', 'books', 'clients',
+                       'clients_books', 'genre', 'genre_books', 'users']
+        if name_dir:
+            for table in name_tables:
+                cursor.execute(f'SELECT * FROM {table}')
+                with open(name_dir + '/' + table + '.csv', 'w', encoding="utf8") as csv_file:
+                    csv_out = csv.writer(csv_file)
+                    csv_out.writerow([d[0] for d in cursor.description])
+                    for result in cursor:
+                        csv_out.writerow(result)
+            cursor.close()
 
     def search(self):
         if self.type_table == 0:
